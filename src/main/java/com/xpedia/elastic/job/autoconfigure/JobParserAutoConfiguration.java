@@ -76,13 +76,13 @@ public class JobParserAutoConfiguration {
     @Bean
     public JobConfParser jobConfParser(@Qualifier("jobOperateApi") JobOperateAPI joboperateapi,
                                        @Qualifier("elasticJobZkCenter") ZookeeperRegistryCenter elasticJobZkCenter) {
-        log.info("jobConfParser init with currentServerExecuteJobList :{}", currentServerExecuteJobList);
+        log.info("elastic job jobConfParser init with currentServerExecuteJobList :{}", currentServerExecuteJobList);
         HashSet<String> executeJobSet = new HashSet<>();
         if (StringUtils.isNotBlank(currentServerExecuteJobList)) {
             List<String> jobList = Splitter.on(",").splitToList(currentServerExecuteJobList);
             executeJobSet.addAll(jobList);
         }
-        log.info("jobConfParser initialized  customized executeJobSet :{}, ignore customized and executeAll ?:{}", executeJobSet, executeAll);
+        log.info("elastic job jobConfParser initialized  customized executeJobSet :{}, ignore customized and executeAll ?:{}", executeJobSet, executeAll);
         return new JobConfParser(elasticJobZkCenter, executeJobSet, joboperateapi, executeAll);
     }
 
