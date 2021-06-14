@@ -39,6 +39,16 @@ elastic.job.execute.all=true			#是否忽略自定义job配置，执行所有携
 ### 1.依赖配置
 
 ```maven
+<!--本依赖配置-->
+        <dependency>
+        	<groupId>com.xpedia.elastic.job</groupId>
+        	<artifactId>elastic-job-simplify-starter</artifactId>
+        	<version>0.0.1-RC01</version>
+        	<scope>system</scope>
+        	<systemPath>xxx\elastic-job-simplify-starter-0.0.1-RC01.jar</systemPath>
+        </dependency>
+  (本项目的依赖包可从release页面进行下载，后续会维护到私服上面)
+
 <!--maven properties-->
 		<elastic-job.version>2.1.5</elastic-job.version>
 		<guava.version>29.0-jre</guava.version>
