@@ -16,6 +16,7 @@ import com.dangdang.ddframe.job.lite.spring.api.SpringJobScheduler;
 import com.dangdang.ddframe.job.reg.zookeeper.ZookeeperRegistryCenter;
 import com.google.common.base.Optional;
 import com.xpedia.elastic.job.annotation.EsJobConf;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -30,6 +31,7 @@ import java.util.Set;
  *
  * @author Xpedia
  */
+@Slf4j
 public class JobConfParser implements ApplicationContextAware {
     /**
      * ZK注册中心
@@ -68,6 +70,7 @@ public class JobConfParser implements ApplicationContextAware {
         initJobMap(applicationContext);
         //过滤当前机房执行任务
         initCurrentServerJobs();
+        log.info("elastic job current node execute job set is : {}", currentServerExecuteTaskSet);
         //初始化执行任务
         currentServerExecuteTaskSet.forEach(this::initScheduler);
     }
@@ -121,6 +124,7 @@ public class JobConfParser implements ApplicationContextAware {
      * @param ctx applicationContext
      */
     private void initJobMap(ApplicationContext ctx) {
+        log.info("elastic job initJobMap begins ! ");
         Map<String, ElasticJob> jobMap = ctx.getBeansOfType(ElasticJob.class);
         jobMap.forEach((key, value) -> {
             //获取ElasticJob上的配置
@@ -130,6 +134,7 @@ public class JobConfParser implements ApplicationContextAware {
             }
             initializeJobMap.putIfAbsent(jobConf.name(), value);
         });
+        log.info("elastic job initJobMap finished ! initializeJobMap :{}", initializeJobMap.keySet());
     }
 
     /**
@@ -161,8 +166,7 @@ public class JobConfParser implements ApplicationContextAware {
         //初始化JobScheduler
         SpringJobScheduler scheduler = new SpringJobScheduler(elasticJob, this.zookeeperRegistryCenter, liteJobConfiguration);
         scheduler.init();
-
-
+        log.info("elastic job {} job scheduler init succ! ,cron:{}, sharding:{}", jobConf.name(), jobConf.cron(), jobConf.shardingTotalCount());
     }
 
     private JobCoreConfiguration initJobCoreConf(EsJobConf jobConf) {

@@ -4,7 +4,11 @@ import com.dangdang.ddframe.job.lite.lifecycle.api.JobAPIFactory;
 import com.dangdang.ddframe.job.lite.lifecycle.api.JobOperateAPI;
 import com.dangdang.ddframe.job.reg.zookeeper.ZookeeperConfiguration;
 import com.dangdang.ddframe.job.reg.zookeeper.ZookeeperRegistryCenter;
+import com.google.common.base.Optional;
+import com.google.common.base.Splitter;
 import com.xpedia.elastic.job.parser.JobConfParser;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,15 +16,15 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.google.common.base.Optional;
-
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * ElasticJob 依赖Bean自动配置
  *
  * @author Xpedia
  */
+@Slf4j
 @Configuration
 @EnableConfigurationProperties(ZookeeperProperties.class)
 public class JobParserAutoConfiguration {
@@ -72,8 +76,14 @@ public class JobParserAutoConfiguration {
     @Bean
     public JobConfParser jobConfParser(@Qualifier("jobOperateApi") JobOperateAPI joboperateapi,
                                        @Qualifier("elasticJobZkCenter") ZookeeperRegistryCenter elasticJobZkCenter) {
-
-        return new JobConfParser(elasticJobZkCenter, new HashSet<>(), joboperateapi, executeAll);
+        log.info("jobConfParser init with currentServerExecuteJobList :{}", currentServerExecuteJobList);
+        HashSet<String> executeJobSet = new HashSet<>();
+        if (StringUtils.isNotBlank(currentServerExecuteJobList)) {
+            List<String> jobList = Splitter.on(",").splitToList(currentServerExecuteJobList);
+            executeJobSet.addAll(jobList);
+        }
+        log.info("jobConfParser initialized  customized executeJobSet :{}, ignore customized and executeAll ?:{}", executeJobSet, executeAll);
+        return new JobConfParser(elasticJobZkCenter, executeJobSet, joboperateapi, executeAll);
     }
 
     @Bean(name = "jobOperateApi")
