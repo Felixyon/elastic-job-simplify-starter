@@ -94,6 +94,16 @@ public class JobConfParser implements ApplicationContextAware {
     @SuppressWarnings("all")
     public void modifyCurrentServerExecuteJobSet(boolean executeAll, Set<String> targetJobSet) {
         this.executeAll = executeAll;
+        if (executeAll) {
+            log.info("elastic job executeALL modified: {}", executeAll);
+            initializeJobMap.forEach((key, value) -> {
+                if (!initializeJobMap.containsKey(key)) {
+                    initScheduler(key);
+                }
+                jobOperateAPI.enable(Optional.fromNullable(key), Optional.fromNullable(null));
+            });
+            return;
+        }
         //校验变更后的任务集合合法性
         for (String jobName : targetJobSet) {
             if (!initializeJobMap.containsKey(jobName)) {
@@ -115,6 +125,7 @@ public class JobConfParser implements ApplicationContextAware {
         });
         //当前执行任务集合更新
         this.currentServerExecuteTaskSet = targetJobSet;
+        log.info("elastic job currentServerExecuteTaskSet modified: {}", currentServerExecuteTaskSet);
 
     }
 
